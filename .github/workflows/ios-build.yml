@@ -152,7 +152,9 @@ jobs:
             const ios = ((j.submit||{}).production||{}).ios;
             if (!ios) { console.error("submit.production.ios missing"); process.exit(1); }
             ios.ascAppId = process.env.ASC_APP_ID;
-            ios.appleId = process.env.APPLE_ID;
+            // appleId is optional when authenticating with an ASC API key; an
+            // empty string fails schema validation, so drop the key instead.
+            if (process.env.APPLE_ID) { ios.appleId = process.env.APPLE_ID; } else { delete ios.appleId; }
             ios.ascApiKeyId = process.env.ASC_KEY_ID;
             ios.ascApiKeyIssuerId = process.env.ASC_ISSUER;
             ios.ascApiKeyPath = "./.secrets/AuthKey_" + process.env.ASC_KEY_ID + ".p8";
