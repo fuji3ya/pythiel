@@ -118,6 +118,11 @@ jobs:
           '
 
       - name: EAS build (local)
+        env:
+          # Copy the working directory (not git HEAD) into the build tarball so
+          # CI-generated files (webview-payload.ts, credentials.json, .secrets/)
+          # are included. Excludes come from .easignore.
+          EAS_NO_VCS: 1
         run: |
           eas build \
             --platform ios \

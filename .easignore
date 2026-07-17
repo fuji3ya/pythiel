@@ -1,0 +1,12 @@
+# EAS build context excludes (used with EAS_NO_VCS=1 so CI-generated files
+# like app/webview-payload.ts and credentials.json ARE included in the tarball)
+node_modules/
+.expo/
+dist/
+web-build/
+ios/
+android/
+*.log
+.git/
+.DS_Store
+design/mockups/.webview-test.html
