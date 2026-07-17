@@ -1,4 +1,5 @@
 name: iOS Build (EAS local on macOS)
+# rev 2 — force workflow re-index after default-branch switch
 
 # Build a production iOS .ipa on a GitHub-hosted macOS runner using
 # `eas build --local`. Public repo = unlimited free macOS minutes.
