@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythiel — App</title>
+<link href="../fonts/cormorant.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2233;
+    --navy-deep: #11161f;
+    --gold: #c6a44a;
+    --gold-soft: #d8bd72;
+    --cream: #f4e7c4;
+    --cream-mute: #a89b78;
+    --wine: #7f2a3b;
+    --line: #2c3344;
+
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --jp-sans: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--navy-deep);
+    color: var(--cream);
+    min-height: 100vh;
+  }
+  body {
+    background-image: url('../references/pythiel-bg.png');
+    background-size: cover;
+    background-position: center top;
+    background-color: var(--navy);
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(2px 2px at 22% 14%, rgba(244,231,196,0.85), transparent 55%),
+      radial-gradient(1.5px 1.5px at 78% 22%, rgba(216,189,114,0.75), transparent 50%),
+      radial-gradient(2.2px 2.2px at 35% 78%, rgba(244,231,196,0.7), transparent 55%),
+      radial-gradient(1.8px 1.8px at 88% 65%, rgba(216,189,114,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 12% 88%, rgba(244,231,196,0.55), transparent 50%),
+      radial-gradient(1.1px 1.1px at 50% 35%, rgba(198,164,74,0.65), transparent 50%),
+      radial-gradient(1.1px 1.1px at 62% 92%, rgba(216,189,114,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 8% 48%, rgba(216,189,114,0.55), transparent 50%),
+      radial-gradient(1.3px 1.3px at 92% 38%, rgba(244,231,196,0.5), transparent 50%),
+      radial-gradient(0.7px 0.7px at 30% 42%, rgba(216,189,114,0.5), transparent 50%),
+      radial-gradient(0.7px 0.7px at 70% 55%, rgba(244,231,196,0.45), transparent 50%),
+      radial-gradient(0.6px 0.6px at 45% 65%, rgba(216,189,114,0.4), transparent 50%);
+    opacity: 1;
+  }
+
+  .container {
+    position: relative; z-index: 2;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+  }
+
+  /* ─── ヘッダー ─── */
+  .hero {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+  .hero .icon {
+    width: 60px; height: 60px;
+    margin: 0 auto 22px;
+    filter: drop-shadow(0 0 12px rgba(216,189,114,0.4));
+  }
+  .hero .wordmark {
+    font-family: var(--serif);
+    font-size: 56px; font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  .hero .tagline {
+    font-family: var(--jp);
+    font-size: 16px; letter-spacing: 0.12em;
+    color: var(--cream-mute);
+    margin-bottom: 6px;
+  }
+  .hero .subtitle {
+    font-family: var(--jp-sans);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold-soft);
+  }
+
+  /* 装飾 divider */
+  .divider {
+    margin: 60px auto;
+    max-width: 320px;
+    display: flex; align-items: center; gap: 14px;
+    justify-content: center;
+  }
+  .divider::before,
+  .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(198,164,74,0), rgba(198,164,74,0.55), rgba(198,164,74,0));
+  }
+  .gem {
+    width: 8px; height: 8px; transform: rotate(45deg);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-soft) 50%, var(--gold) 100%);
+    box-shadow: 0 0 8px rgba(198,164,74,0.65);
+  }
+
+  /* ─── eyebrow（章扉風） ─── */
+  .section-eyebrow {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px;
+    margin-bottom: 38px;
+    text-align: center;
+  }
+  .section-eyebrow .ch {
+    font-family: var(--serif); font-style: italic;
+    font-size: 22px; color: var(--gold-soft);
+    border-right: 1px solid rgba(198,164,74,0.4);
+    padding-right: 14px; line-height: 1;
+  }
+  .section-eyebrow .label {
+    font-family: var(--jp-sans);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.45em; text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* ─── モックアップカードグリッド ─── */
+  .mockup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+  }
+
+  .mockup-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(27,34,51,0.55), rgba(17,22,31,0.55));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 30px 26px 26px;
+    text-decoration: none;
+    color: var(--cream);
+    transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    backdrop-filter: blur(3px);
+    display: flex; flex-direction: column;
+  }
+  .mockup-card.available:hover {
+    transform: translateY(-6px);
+    border-color: rgba(198,164,74,0.55);
+    box-shadow:
+      0 22px 48px rgba(0,0,0,0.45),
+      0 0 0 1px rgba(198,164,74,0.35);
+  }
+  /* 左に wine アクセント */
+  .mockup-card::before {
+    content: ''; position: absolute; left: 0; top: 22px; bottom: 22px; width: 2px;
+    background: var(--wine); border-radius: 2px;
+  }
+  .mockup-card.coming::before {
+    background: var(--line);
+  }
+
+  .mockup-card .preview {
+    height: 220px;
+    margin: 0 -10px 22px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    background: var(--navy-deep);
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(198,164,74,0.18);
+  }
+  .mockup-card .preview .glyph {
+    font-family: var(--serif); font-style: italic;
+    font-size: 64px; color: rgba(216,189,114,0.18);
+  }
+  .mockup-card.available .preview {
+    background: linear-gradient(160deg, rgba(26,34,51,0.95), rgba(17,22,31,0.95));
+  }
+  .mockup-card.available .preview::after {
+    content: ''; position: absolute; inset: -50%;
+    background: radial-gradient(ellipse 50% 50% at center, rgba(198,164,74,0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .mockup-card.available .preview .glyph {
+    color: var(--gold-soft);
+    font-size: 72px;
+    filter: drop-shadow(0 4px 18px rgba(198,164,74,0.4));
+  }
+
+  .mockup-card .meta {
+    flex: 1;
+  }
+  .mockup-card .num {
+    font-family: var(--serif); font-style: italic;
+    font-size: 14px; color: var(--gold-soft);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .mockup-card .title {
+    font-family: var(--jp);
+    font-size: 22px; font-weight: 500; color: var(--cream);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .mockup-card .title-en {
+    font-family: var(--serif); font-style: italic;
+    font-size: 16px; color: var(--gold-soft);
+    margin-bottom: 14px;
+  }
+  .mockup-card .desc {
+    font-family: var(--jp);
+    font-size: 13.5px; line-height: 1.7; color: var(--cream);
+    opacity: 0.78;
+    margin-bottom: 20px;
+  }
+  .mockup-card .status {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--jp-sans);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.4em; text-transform: uppercase;
+    padding: 7px 12px;
+    border-radius: 4px;
+    align-self: flex-start;
+  }
+  .mockup-card.available .status {
+    color: var(--navy-deep); background: var(--gold);
+  }
+  .mockup-card.coming .status {
+    color: var(--cream-mute); border: 1px solid var(--line);
+  }
+  .mockup-card .status .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--navy-deep);
+  }
+  .mockup-card.coming .status .dot {
+    background: var(--cream-mute);
+  }
+
+  .footer {
+    margin-top: 100px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(198,164,74,0.15);
+    text-align: center;
+    font-family: var(--jp);
+    font-size: 12px; color: var(--cream-mute);
+    letter-spacing: 0.08em;
+  }
+  .footer .meta {
+    font-family: var(--serif); font-style: italic;
+    font-size: 13px; color: var(--gold-soft);
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <img class="icon" src="../references/pythiel-icon.png" alt="Pythiel">
+      <div class="wordmark">Pythiel</div>
+      <div class="tagline">夜空を編む</div>
+      <div class="subtitle">iOS App · v0.4 · Phase D</div>
+    </div>
+
+    <!-- 装飾 divider -->
+    <div class="divider"><span class="gem"></span></div>
+
+    <!-- 章扉 -->
+    <div class="section-eyebrow">
+      <span class="ch">I</span>
+      <span class="label">実機能 · Live Features</span>
+    </div>
+
+    <!-- モックアップグリッド -->
+    <div class="mockup-grid">
+
+      <!-- ✅ 鑑定ホーム（ピッカー起点）-->
+      <a class="mockup-card available" href="./theme.html">
+        <div class="preview">
+          <span class="glyph">Ψ</span>
+        </div>
+        <div class="meta">
+          <div class="num">01</div>
+          <div class="title">今日の鑑定</div>
+          <div class="title-en">Daily Reading</div>
+          <div class="desc">今日の問い（テーマ）→ 12枚から1枚を引く → そのテーマの相談として返る9章 editorial 鑑定。テーマが本文に反映。タロット・占星・数秘・月相 + 36デカン同期 + 人生サイクル。</div>
+        </div>
+        <div class="status"><span class="dot"></span>実装済 · Live</div>
+      </a>
+
+      <!-- ✅ オンボーディング -->
+      <a class="mockup-card available" href="./onboarding.html">
+        <div class="preview">
+          <span class="glyph">α</span>
+        </div>
+        <div class="meta">
+          <div class="num">02</div>
+          <div class="title">はじまりの儀</div>
+          <div class="title-en">Onboarding</div>
+          <div class="desc">初回のみ。入口→生まれた刻→鍵そろい の3段。生年月日・時刻・名前を端末内に保存。完了で今日の問いへ。（テーマは毎日選ぶ）</div>
+        </div>
+        <div class="status"><span class="dot"></span>実装済 · Live</div>
+      </a>
+
+      <!-- ✅ Paywall -->
+      <a class="mockup-card available" href="./paywall.html">
+        <div class="preview">
+          <span class="glyph">★</span>
+        </div>
+        <div class="meta">
+          <div class="num">03</div>
+          <div class="title">Pythiel Pro</div>
+          <div class="title-en">Paywall</div>
+          <div class="desc">月¥480 / 年¥2,900（7日無料）。柱＝二人の相性・関係の流れ。無料の今日の一枚は永続。プライバシーは保証として提示。Codex協議反映。</div>
+        </div>
+        <div class="status"><span class="dot"></span>実装済 · Live</div>
+      </a>
+
+      <!-- 🔲 ルーン -->
+      <a class="mockup-card coming" href="#">
+        <div class="preview">
+          <span class="glyph">ᚱ</span>
+        </div>
+        <div class="meta">
+          <div class="num">04</div>
+          <div class="title">ルーンの問い</div>
+          <div class="title-en">Rune Query</div>
+          <div class="desc">Elder Futhark 24枚で「クイック質問」に答える Pro 機能。</div>
+        </div>
+        <div class="status"><span class="dot"></span>未着手 · Next Phase</div>
+      </a>
+
+      <!-- ✅ シェアカード -->
+      <a class="mockup-card available" href="./share.html">
+        <div class="preview">
+          <span class="glyph">↗</span>
+        </div>
+        <div class="meta">
+          <div class="num">05</div>
+          <div class="title">シェアカード</div>
+          <div class="title-en">Share Card</div>
+          <div class="desc">ポスター型の共有用1枚。カード＋「これ私すぎる」鋭い一撃＋ブランド。スクショ拡散の核（Co-Star のバイラル成長エンジン）。</div>
+        </div>
+        <div class="status"><span class="dot"></span>実装済 · Live</div>
+      </a>
+
+    </div>
+
+    <!-- フッター -->
+    <div class="footer">
+      <div class="meta">— Pythiel iOS App · Phase D · Premium Editorial —</div>
+      <div>weaver engine v4 / 36デカン同期 / 人生サイクル統合 / 床+天井ゲート通過済</div>
+    </div>
+
+  </div>
+</body>
+</html>

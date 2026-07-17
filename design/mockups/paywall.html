@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythiel — ひらく</title>
+<link href="../fonts/cormorant.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2233;
+    --navy-deep: #11161f;
+    --gold: #c6a44a;
+    --gold-soft: #d8bd72;
+    --cream: #f4e7c4;
+    --cream-mute: #a89b78;
+    --wine: #7f2a3b;
+    --line: #2c3344;
+
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --jp-sans: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--navy-deep); color: var(--cream); }
+  body {
+    width: 390px; margin: 0 auto; min-height: 844px; position: relative;
+    background-image: url('../references/pythiel-bg.png');
+    background-size: cover; background-position: center top; background-color: var(--navy);
+    overflow-x: hidden; font-family: var(--jp);
+  }
+  body::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 130px;
+    background: linear-gradient(180deg, rgba(17,22,31,0.9), rgba(17,22,31,0));
+    pointer-events: none; z-index: 1;
+  }
+  body::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(2px 2px at 22% 12%, rgba(244,231,196,0.85), transparent 55%),
+      radial-gradient(1.5px 1.5px at 78% 18%, rgba(216,189,114,0.75), transparent 50%),
+      radial-gradient(2px 2px at 35% 72%, rgba(244,231,196,0.6), transparent 55%),
+      radial-gradient(1.5px 1.5px at 88% 60%, rgba(216,189,114,0.55), transparent 50%),
+      radial-gradient(1.1px 1.1px at 12% 86%, rgba(244,231,196,0.5), transparent 50%),
+      radial-gradient(1.1px 1.1px at 50% 33%, rgba(198,164,74,0.6), transparent 50%),
+      radial-gradient(1.1px 1.1px at 62% 90%, rgba(216,189,114,0.55), transparent 50%);
+    opacity: 1;
+  }
+  .screen { position: relative; z-index: 2; padding: 0 28px 36px; display: flex; flex-direction: column; min-height: 844px; }
+
+  /* close */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 0 6px; }
+  .topbar .close { font-family: var(--serif); font-size: 22px; color: var(--cream-mute); cursor: pointer; line-height: 1; background: none; border: none; }
+  .topbar .restore { font-family: var(--jp-sans); font-size: 11px; letter-spacing: 0.06em; color: var(--cream-mute); cursor: pointer; background: none; border: none; }
+
+  /* hero */
+  .hero { text-align: center; margin-top: 18px; }
+  .hero .moon { filter: drop-shadow(0 0 18px rgba(198,164,74,0.45)); margin-bottom: 16px; }
+  .hero .eyebrow {
+    font-family: var(--jp-sans); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.45em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+  }
+  .hero .title {
+    font-family: var(--jp); font-size: 26px; font-weight: 500; line-height: 1.5; color: var(--cream);
+  }
+  .hero .title .em { color: var(--gold-soft); }
+  .hero .sub { font-family: var(--jp); font-size: 13.5px; line-height: 1.9; color: var(--cream-mute); margin-top: 12px; }
+
+  /* feature list */
+  .features { margin-top: 26px; display: flex; flex-direction: column; gap: 14px; }
+  .feat { display: flex; align-items: flex-start; gap: 13px; }
+  .feat .ic {
+    width: 30px; height: 30px; flex: none; border: 1px solid rgba(198,164,74,0.4); border-radius: 50%;
+    display: grid; place-items: center; color: var(--gold-soft); font-family: var(--serif); font-size: 15px;
+    background: radial-gradient(ellipse 60% 60% at center, rgba(198,164,74,0.12), transparent 70%);
+    margin-top: 1px;
+  }
+  .feat .t { font-family: var(--jp); font-size: 15px; color: var(--cream); font-weight: 500; }
+  .feat .d { font-family: var(--jp-sans); font-size: 11.5px; color: var(--cream-mute); margin-top: 3px; line-height: 1.55; }
+
+  /* divider */
+  .divider { margin: 26px 0; height: 9px; display: flex; align-items: center; gap: 12px; justify-content: center; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(198,164,74,0), rgba(198,164,74,0.5), rgba(198,164,74,0)); }
+  .divider .gem { width: 7px; height: 7px; transform: rotate(45deg); background: linear-gradient(135deg, var(--gold), var(--gold-soft), var(--gold)); box-shadow: 0 0 6px rgba(198,164,74,0.6); }
+
+  /* plans */
+  .plans { display: flex; gap: 12px; margin-top: 4px; }
+  .plan {
+    flex: 1; position: relative; border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 14px 16px; text-align: center; cursor: pointer;
+    background: linear-gradient(180deg, rgba(27,34,51,0.6), rgba(17,22,31,0.6));
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .plan.sel { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(198,164,74,0.5), 0 12px 28px rgba(0,0,0,0.4); }
+  .plan .ptag {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    font-family: var(--jp-sans); font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+    color: var(--navy-deep); background: var(--gold); padding: 3px 10px; border-radius: 4px; white-space: nowrap;
+  }
+  .plan .pname { font-family: var(--jp-sans); font-size: 11px; letter-spacing: 0.16em; color: var(--cream-mute); }
+  .plan .pprice { font-family: var(--serif); font-size: 34px; color: var(--cream); line-height: 1.1; margin-top: 8px; }
+  .plan .pprice .yen { font-size: 17px; }
+  .plan .pper { font-family: var(--jp-sans); font-size: 10.5px; color: var(--cream-mute); margin-top: 4px; }
+  .plan .pnote { font-family: var(--jp-sans); font-size: 10px; color: var(--gold-soft); margin-top: 6px; }
+
+  /* trust line */
+  .trust {
+    margin-top: 18px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .trust .row { display: flex; align-items: center; gap: 9px; font-family: var(--jp-sans); font-size: 11.5px; color: var(--cream-mute); }
+  .trust .row svg { width: 14px; height: 14px; flex: none; stroke: var(--gold-soft); fill: none; stroke-width: 1.4; }
+
+  /* CTA */
+  .cta {
+    margin-top: 18px; display: block; width: 100%;
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold)); color: var(--navy-deep);
+    font-family: var(--jp); font-weight: 700; font-size: 16px; letter-spacing: 0.06em;
+    border: none; border-radius: 14px; padding: 17px; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(198,164,74,0.28), inset 0 1px 0 rgba(255,247,224,0.5);
+  }
+  .finetext {
+    margin-top: 12px; text-align: center; font-family: var(--jp-sans); font-size: 10px; line-height: 1.6; color: var(--cream-mute);
+  }
+  .finetext a { color: var(--gold-soft); text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="screen">
+    <div class="topbar">
+      <button class="close" onclick="location.href='./home.html?picked=1'">✕</button>
+      <button class="restore">購入を復元</button>
+    </div>
+
+    <div class="hero">
+      <svg class="moon" width="52" height="52" viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="20" fill="none" stroke="rgba(216,189,114,0.22)" stroke-width="0.5"/>
+        <circle cx="22" cy="22" r="15" fill="#e8dca8" stroke="rgba(198,164,74,0.7)" stroke-width="0.7"/>
+        <circle cx="18" cy="19" r="1.2" fill="rgba(120,100,60,0.18)"/>
+        <circle cx="25" cy="24" r="1.8" fill="rgba(120,100,60,0.15)"/>
+        <path d="M 22 7 A 9 15 0 0 1 22 37 A 15 15 0 0 1 22 7 Z" fill="rgba(11,13,31,0.92)"/>
+      </svg>
+      <div class="eyebrow">Pythiel Pro</div>
+      <div class="title">あなたの今日に、<br><span class="em">大切な人との縁</span>を。</div>
+      <div class="sub">今日の一枚は、これからもずっと無料。<br>Proは、その先の「二人」と「流れ」をひらきます。</div>
+    </div>
+
+    <div class="features">
+      <div class="feat">
+        <div class="ic">⚭</div>
+        <div>
+          <div class="t">二人の相性と、関係の流れ</div>
+          <div class="d">相手の生まれた日を登録して、縁の温度と、これから30日の兆しを視る</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="ic">✦</div>
+        <div>
+          <div class="t">もうひとつ、相談する</div>
+          <div class="d">今日の一枚に加えて、別のテーマをもう一度たずねられる</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="ic">☾</div>
+        <div>
+          <div class="t">鑑定を、読み返す</div>
+          <div class="d">過去の鑑定とカレンダーで、日々の流れを振り返る</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="ic">ᚱ</div>
+        <div>
+          <div class="t">ルーンの、ひと言</div>
+          <div class="d">迷ったとき、ひとつの問いに短い答えを</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"><span class="gem"></span></div>
+
+    <div class="plans">
+      <div class="plan" data-plan="month" onclick="selPlan('month')">
+        <div class="pname">MONTHLY</div>
+        <div class="pprice"><span class="yen">¥</span>480</div>
+        <div class="pper">毎月</div>
+      </div>
+      <div class="plan sel" data-plan="year" onclick="selPlan('year')">
+        <div class="ptag">2ヶ月ぶん おトク</div>
+        <div class="pname">YEARLY</div>
+        <div class="pprice"><span class="yen">¥</span>2,900</div>
+        <div class="pper">年・月あたり約242円</div>
+        <div class="pnote">7日間 無料でお試し</div>
+      </div>
+    </div>
+
+    <div class="trust">
+      <div class="row">
+        <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        相談内容は端末の中だけ。どこへも送りません
+      </div>
+      <div class="row">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M8 12l2.5 2.5L16 9"/></svg>
+        広告なし・追跡なし。機内モードでも鑑定できます
+      </div>
+      <div class="row">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+        いつでも解約できます
+      </div>
+    </div>
+
+    <button class="cta" id="cta" onclick="location.href='./home.html?picked=1'">7日間、無料ではじめる</button>
+    <div class="finetext">
+      無料期間の終了24時間前までに解約すれば請求はありません。<br>
+      <a href="#">利用規約</a> · <a href="#">プライバシー</a>
+    </div>
+  </div>
+
+<script>
+  var ctaEl = document.getElementById('cta');
+  function selPlan(p){
+    document.querySelectorAll('.plan').forEach(function(x){ x.classList.toggle('sel', x.dataset.plan===p); });
+    ctaEl.textContent = p === 'year' ? '7日間、無料ではじめる' : '月額ではじめる';
+  }
+</script>
+</body>
+</html>

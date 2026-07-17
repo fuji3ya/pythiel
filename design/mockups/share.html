@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythiel — 今日の一枚</title>
+<link href="../fonts/cormorant.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2233; --navy-deep: #11161f; --gold: #c6a44a; --gold-soft: #d8bd72;
+    --cream: #f4e7c4; --cream-mute: #a89b78; --wine: #7f2a3b; --line: #2c3344;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --jp-sans: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--navy-deep); color: var(--cream); }
+  body {
+    width: 390px; margin: 0 auto; min-height: 844px; position: relative;
+    font-family: var(--jp);
+    display: flex; flex-direction: column; align-items: center;
+    background: var(--navy-deep);
+    padding: 16px 0 14px;
+  }
+
+  /* ── 共有カード本体（このカードをスクショ＝シェア資産） ── */
+  .share-card {
+    position: relative;
+    width: 358px; min-height: 636px;
+    border-radius: 22px; overflow: hidden;
+    background-image: url('../references/pythiel-bg.png');
+    background-size: cover; background-position: center;
+    background-color: var(--navy);
+    border: 1px solid rgba(198,164,74,0.35);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 26px 26px 22px;
+  }
+  /* 星屑 */
+  .share-card::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(2px 2px at 20% 12%, rgba(244,231,196,0.85), transparent 55%),
+      radial-gradient(1.5px 1.5px at 80% 18%, rgba(216,189,114,0.7), transparent 50%),
+      radial-gradient(2px 2px at 32% 84%, rgba(244,231,196,0.6), transparent 55%),
+      radial-gradient(1.5px 1.5px at 86% 72%, rgba(216,189,114,0.55), transparent 50%),
+      radial-gradient(1.1px 1.1px at 14% 64%, rgba(244,231,196,0.5), transparent 50%),
+      radial-gradient(1.1px 1.1px at 60% 30%, rgba(198,164,74,0.6), transparent 50%);
+    opacity: 0.95;
+  }
+  .share-card > * { position: relative; z-index: 1; }
+
+  /* ヘッダー: ブランド + 日付 */
+  .sc-top { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .sc-brand { display: flex; align-items: center; gap: 7px; }
+  .sc-brand img { width: 20px; height: 20px; opacity: 0.95; }
+  .sc-brand .wm { font-family: var(--serif); font-size: 17px; font-weight: 600; letter-spacing: 0.08em; color: var(--gold); }
+  .sc-date { font-family: var(--serif); font-size: 11px; letter-spacing: 0.16em; color: var(--cream-mute); }
+
+  /* カード画像 */
+  .sc-card-wrap {
+    margin-top: 20px; position: relative;
+    filter: drop-shadow(0 14px 26px rgba(0,0,0,0.5)) drop-shadow(0 0 30px rgba(198,164,74,0.3));
+  }
+  .sc-card-wrap::before {
+    content: ''; position: absolute; inset: -34px; z-index: -1;
+    background: radial-gradient(ellipse 55% 52% at center, rgba(198,164,74,0.32), transparent 72%);
+  }
+  .sc-card-wrap img {
+    width: 132px; height: auto; display: block; border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(216,189,114,0.5);
+  }
+
+  /* カード名 */
+  .sc-name {
+    margin-top: 16px; text-align: center;
+    font-family: var(--serif); font-style: italic; font-size: 24px; color: var(--cream); line-height: 1.1;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .sc-name::before, .sc-name::after { content: ''; width: 18px; height: 1px; background: linear-gradient(90deg, rgba(198,164,74,0), rgba(198,164,74,0.7), rgba(198,164,74,0)); }
+  .sc-pos {
+    margin-top: 7px; font-family: var(--jp-sans); font-size: 9px; font-weight: 700;
+    letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold-soft);
+  }
+
+  /* gem divider */
+  .sc-div { margin: 18px 0; width: 60%; height: 8px; display: flex; align-items: center; gap: 10px; justify-content: center; }
+  .sc-div::before, .sc-div::after { content:''; flex:1; height:1px; background: linear-gradient(90deg, rgba(198,164,74,0), rgba(198,164,74,0.5), rgba(198,164,74,0)); }
+  .sc-gem { width:6px; height:6px; transform: rotate(45deg); background: linear-gradient(135deg, var(--gold), var(--gold-soft)); box-shadow:0 0 6px rgba(198,164,74,0.6); }
+
+  /* 一撃のコピー（this is me = シェアの核） */
+  .sc-hit {
+    font-family: var(--jp); font-size: 18px; font-weight: 500; line-height: 1.75;
+    color: var(--cream); text-align: center; letter-spacing: 0.01em;
+    padding: 0 4px;
+  }
+
+  /* フッター: ブランド */
+  .sc-foot { margin-top: auto; padding-top: 22px; text-align: center; }
+  .sc-foot .wm2 { font-family: var(--serif); font-size: 20px; font-weight: 500; letter-spacing: 0.1em; color: var(--gold); }
+  .sc-foot .tag { font-family: var(--jp-sans); font-size: 9px; letter-spacing: 0.34em; color: var(--cream-mute); margin-top: 4px; }
+
+  /* 下部の実アクション（カード外＝スクショに入らない） */
+  .actions { width: 358px; display: flex; gap: 10px; margin-top: 14px; }
+  .btn {
+    flex: 1; text-align: center; border-radius: 12px; padding: 13px;
+    font-family: var(--jp); font-size: 14px; font-weight: 700; cursor: pointer; border: none;
+  }
+  .btn.primary { background: linear-gradient(180deg, var(--gold-soft), var(--gold)); color: var(--navy-deep); }
+  .btn.ghost { background: rgba(27,34,51,0.6); border: 1px solid var(--line); color: var(--cream); }
+</style>
+</head>
+<body>
+  <div class="share-card" id="share-card">
+    <div class="sc-top">
+      <div class="sc-brand"><img src="../references/pythiel-icon.png" alt=""><span class="wm">Pythiel</span></div>
+      <div class="sc-date" id="sc-date">2026 · 6 · 24</div>
+    </div>
+
+    <div class="sc-card-wrap">
+      <img id="sc-card-img" src="../assets/cards/card-back.jpg" alt="">
+    </div>
+    <div class="sc-name" id="sc-name">…</div>
+    <div class="sc-pos" id="sc-pos">…</div>
+
+    <div class="sc-div"><span class="sc-gem"></span></div>
+
+    <div class="sc-hit" id="sc-hit">…</div>
+
+    <div class="sc-foot">
+      <div class="wm2">Pythiel</div>
+      <div class="tag">夜空を編む</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn ghost" onclick="location.href='./home.html?picked=1'">← 鑑定へ</button>
+    <button class="btn primary" id="save-btn">画像を保存</button>
+  </div>
+
+<script src="./engine.bundle.js?v=16"></script>
+<script>
+  (function(){
+    var E = window.PythielEngine;
+    if (!E) return;
+    // sessionStorage の persona を復元（無ければデモ）
+    var ob = {}; try { ob = JSON.parse(sessionStorage.getItem('pythiel.onboarding')||'{}'); } catch(e){}
+    var theme = 'self'; try { theme = sessionStorage.getItem('pythiel.theme')||'self'; } catch(e){}
+    var uid = 'demo'; try { uid = sessionStorage.getItem('pythiel.userId')||'demo'; } catch(e){}
+    function pad(x){ return ('0'+String(x).replace(/\D/g,'')).slice(-2); }
+    var birth = (ob.year && ob.month && ob.day) ? { date: ob.year+'-'+pad(ob.month)+'-'+pad(ob.day), time: (ob.time && ob.time.replace(/\D/g,'').length>=3)?(function(){var t=('000'+ob.time.replace(/\D/g,'')).slice(-4); return t.slice(0,2)+':'+t.slice(2);})():undefined } : { date:'1993-11-08', time:'03:20' };
+    var date = '2026-06-24';
+
+    var astro = new E.MoshierAstrologyProvider();
+    var input = E.assembleDailyReading({ userId: uid, date: date, birth: birth, name: ob.name||undefined, theme: theme, astrology: astro });
+    var w = E.weaveWithMeta(input);
+
+    document.getElementById('sc-date').textContent = date.replace(/-/g,' · ').replace(' · 0',' · ');
+    document.getElementById('sc-name').textContent = input.tarot.card.name;
+    document.getElementById('sc-pos').textContent = input.tarot.reversed ? '逆位置' : '正位置';
+    // カード画像（ID 別があれば）
+    var cardImg = document.getElementById('sc-card-img');
+    var idealSrc = '../assets/cards/' + input.tarot.card.id + '.jpg';
+    var probe = new Image(); probe.onload = function(){ cardImg.src = idealSrc; }; probe.src = idealSrc;
+    // シェアの核＝鋭い一撃（this is me）
+    var hit = (w && w.extras && w.extras.profile_headline) ? w.extras.profile_headline : '';
+    document.getElementById('sc-hit').textContent = hit;
+  })();
+
+  document.getElementById('save-btn').addEventListener('click', function(){
+    // 本番は html2canvas 等でカードを画像化して共有/保存。モックは案内のみ。
+    alert('このカードを画像として保存・シェアします（実装時は html2canvas で share-card を書き出し）。');
+  });
+</script>
+</body>
+</html>

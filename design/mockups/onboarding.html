@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythiel — はじまりの儀</title>
+<link href="../fonts/cormorant.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2233;
+    --navy-deep: #11161f;
+    --gold: #c6a44a;
+    --gold-soft: #d8bd72;
+    --cream: #f4e7c4;
+    --cream-mute: #a89b78;
+    --wine: #7f2a3b;
+    --line: #2c3344;
+
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --jp-sans: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--navy-deep); color: var(--cream); }
+  body {
+    width: 390px; margin: 0 auto;
+    min-height: 844px;
+    position: relative;
+    background-image: url('../references/pythiel-bg.png');
+    background-size: cover; background-position: center top;
+    background-color: var(--navy);
+    overflow-x: hidden;
+    font-family: var(--jp);
+  }
+  /* 上部の navy フェード */
+  body::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 140px;
+    background: linear-gradient(180deg, rgba(17,22,31,0.9), rgba(17,22,31,0));
+    pointer-events: none; z-index: 1;
+  }
+  /* 星屑 overlay */
+  body::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(2px 2px at 22% 14%, rgba(244,231,196,0.85), transparent 55%),
+      radial-gradient(1.5px 1.5px at 78% 22%, rgba(216,189,114,0.75), transparent 50%),
+      radial-gradient(2.2px 2.2px at 35% 78%, rgba(244,231,196,0.7), transparent 55%),
+      radial-gradient(1.8px 1.8px at 88% 65%, rgba(216,189,114,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 12% 88%, rgba(244,231,196,0.55), transparent 50%),
+      radial-gradient(1.1px 1.1px at 50% 35%, rgba(198,164,74,0.65), transparent 50%),
+      radial-gradient(1.1px 1.1px at 62% 92%, rgba(216,189,114,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 8% 48%, rgba(216,189,114,0.55), transparent 50%),
+      radial-gradient(1.3px 1.3px at 92% 38%, rgba(244,231,196,0.5), transparent 50%);
+    opacity: 1;
+  }
+
+  .screen {
+    position: relative; z-index: 2;
+    min-height: 844px;
+    padding: 0 30px 40px;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── 進捗（金のドット） ────────────────── */
+  .progress {
+    display: flex; gap: 8px; justify-content: center;
+    padding: 28px 0 0;
+  }
+  .progress .dot {
+    width: 7px; height: 7px; transform: rotate(45deg);
+    background: transparent;
+    border: 1px solid rgba(198,164,74,0.4);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+  }
+  .progress .dot.on {
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    box-shadow: 0 0 7px rgba(198,164,74,0.6);
+    border-color: var(--gold);
+  }
+
+  /* ── ステップ共通 ─────────────────────── */
+  .step { display: none; flex: 1; flex-direction: column; }
+  .step.active { display: flex; animation: stepIn 0.7s cubic-bezier(0.2, 0.7, 0.3, 1); }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* eyebrow（章番号つき） */
+  .eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 30px;
+  }
+  .eyebrow .ch {
+    font-family: var(--serif); font-style: italic;
+    font-size: 17px; color: var(--gold-soft);
+    border-right: 1px solid rgba(198,164,74,0.4);
+    padding-right: 12px; line-height: 1;
+  }
+  .eyebrow .label {
+    font-family: var(--jp-sans);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.42em; text-transform: uppercase;
+    color: var(--gold);
+  }
+  .eyebrow::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(198,164,74,0.5), rgba(198,164,74,0));
+  }
+
+  /* 見出し */
+  .headline {
+    font-family: var(--jp);
+    font-size: 26px; font-weight: 500; line-height: 1.5;
+    color: var(--cream);
+    margin-top: 20px; letter-spacing: 0.01em;
+  }
+  .headline .em { color: var(--gold-soft); }
+  .subline {
+    font-family: var(--jp);
+    font-size: 14px; line-height: 1.9; color: var(--cream-mute);
+    margin-top: 16px;
+  }
+
+  /* CTA（金のボタン） */
+  .cta {
+    margin-top: auto;
+    display: block; width: 100%;
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color: var(--navy-deep);
+    font-family: var(--jp); font-weight: 700; font-size: 16px;
+    letter-spacing: 0.08em;
+    border: none; border-radius: 14px;
+    padding: 17px; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(198,164,74,0.28), inset 0 1px 0 rgba(255,247,224,0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(198,164,74,0.4), inset 0 1px 0 rgba(255,247,224,0.5); }
+  .cta:disabled { opacity: 0.32; cursor: default; box-shadow: none; transform: none; }
+  .cta .arrow { font-family: var(--serif); }
+  .ghost-cta {
+    display: block; text-align: center; margin-top: 16px;
+    font-family: var(--jp-sans); font-size: 12px; letter-spacing: 0.06em;
+    color: var(--cream-mute); cursor: pointer; background: none; border: none; width: 100%;
+  }
+
+  /* ───────── step 0: 入口（儀式の入口） ───────── */
+  .threshold {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    text-align: center; justify-content: center; padding: 30px 0;
+  }
+  .threshold .moon {
+    filter: drop-shadow(0 0 22px rgba(198,164,74,0.5));
+    margin-bottom: 30px;
+  }
+  .threshold .wordmark {
+    font-family: var(--serif);
+    font-size: 52px; font-weight: 500; letter-spacing: 0.06em;
+    color: var(--gold); line-height: 1; margin-bottom: 20px;
+  }
+  .threshold .tagline {
+    font-family: var(--jp);
+    font-size: 13px; letter-spacing: 0.3em; color: var(--cream-mute);
+    margin-bottom: 34px;
+  }
+  .threshold .arts {
+    font-family: var(--jp);
+    font-size: 14.5px; line-height: 2.1; color: var(--cream-mute);
+    max-width: 290px;
+  }
+  .threshold .arts b { color: var(--gold-soft); font-weight: 500; }
+  .privacy-seal {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 26px;
+    font-family: var(--jp-sans); font-size: 11px; letter-spacing: 0.05em;
+    color: var(--gold-soft);
+    border: 1px solid rgba(198,164,74,0.35); border-radius: 999px;
+    padding: 8px 16px;
+  }
+
+  /* ───────── step 1: 問い（goal） ───────── */
+  .goal-list { margin-top: 26px; display: flex; flex-direction: column; gap: 12px; }
+  .goal {
+    position: relative;
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(180deg, rgba(27,34,51,0.66), rgba(17,22,31,0.66));
+    border: 1px solid var(--line);
+    border-radius: 16px; padding: 17px 18px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(2px);
+  }
+  .goal:hover, .goal.sel {
+    border-color: rgba(198,164,74,0.6);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.35), 0 0 0 1px rgba(198,164,74,0.3);
+    transform: translateY(-2px);
+  }
+  .goal .glyph {
+    width: 42px; height: 42px; flex: none;
+    border: 1px solid rgba(198,164,74,0.45); border-radius: 50%;
+    display: grid; place-items: center;
+    background: radial-gradient(ellipse 60% 60% at center, rgba(198,164,74,0.14), transparent 70%);
+  }
+  .goal .glyph svg { width: 22px; height: 22px; stroke: var(--gold-soft); fill: none; stroke-width: 1.3; }
+  .goal .txt .t {
+    font-family: var(--jp); font-size: 16px; color: var(--cream); font-weight: 500;
+  }
+  .goal .txt .d {
+    font-family: var(--jp-sans); font-size: 11.5px; color: var(--cream-mute); margin-top: 3px;
+  }
+  .goal .pick-mark {
+    margin-left: auto; font-family: var(--serif); font-size: 20px; color: var(--gold);
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .goal.sel .pick-mark { opacity: 1; }
+
+  /* ───────── step 2: 生まれた刻（birth data） ───────── */
+  .birth-block { margin-top: 26px; }
+  .date-row {
+    display: flex; align-items: flex-end; gap: 14px;
+    margin-bottom: 8px;
+  }
+  .date-field { flex: 1; text-align: center; }
+  .date-field.year { flex: 1.5; }
+  .date-field input {
+    width: 100%; background: none; border: none;
+    border-bottom: 1px solid rgba(198,164,74,0.4);
+    color: var(--cream); text-align: center;
+    font-family: var(--serif); font-size: 34px; font-weight: 500;
+    padding: 4px 0 8px;
+    outline: none; letter-spacing: 0.04em;
+  }
+  .date-field input::placeholder { color: rgba(168,155,120,0.45); }
+  .date-field input:focus { border-bottom-color: var(--gold); }
+  .date-field .unit {
+    font-family: var(--jp-sans); font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--cream-mute);
+    margin-top: 8px;
+  }
+  .optional-field { margin-top: 26px; }
+  .optional-field .lbl {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--jp); font-size: 14px; color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .optional-field .lbl .tag {
+    font-family: var(--jp-sans); font-size: 10px; letter-spacing: 0.12em;
+    color: var(--gold-soft); border: 1px solid rgba(198,164,74,0.35);
+    border-radius: 4px; padding: 1px 7px;
+  }
+  .optional-field .hint {
+    font-family: var(--jp-sans); font-size: 11px; color: var(--cream-mute);
+  }
+  .text-input {
+    width: 100%; background: rgba(17,22,31,0.6);
+    border: 1px solid var(--line); border-radius: 12px;
+    color: var(--cream); font-family: var(--serif); font-size: 22px;
+    padding: 12px 16px; outline: none; letter-spacing: 0.05em;
+  }
+  .text-input::placeholder { color: rgba(168,155,120,0.4); font-size: 18px; }
+  .text-input:focus { border-color: rgba(198,164,74,0.6); }
+  .privacy-note {
+    display: flex; gap: 9px; align-items: flex-start;
+    margin-top: 22px;
+    font-family: var(--jp-sans); font-size: 11px; line-height: 1.6; color: var(--cream-mute);
+  }
+  .privacy-note svg { width: 14px; height: 14px; flex: none; margin-top: 2px; stroke: var(--gold-soft); fill: none; stroke-width: 1.3; }
+
+  /* ───────── step 3: 鍵そろい（confirm） ───────── */
+  .keys-card {
+    margin-top: 26px;
+    background: linear-gradient(180deg, rgba(27,34,51,0.7), rgba(17,22,31,0.7));
+    border: 1px solid rgba(198,164,74,0.35);
+    border-radius: 20px; padding: 8px 22px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.4);
+  }
+  .key-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(44,51,68,0.8);
+  }
+  .key-row:last-child { border-bottom: none; }
+  .key-row .k {
+    font-family: var(--jp-sans); font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--cream-mute);
+  }
+  .key-row .v {
+    font-family: var(--serif); font-size: 22px; font-style: italic; color: var(--cream);
+  }
+  .key-row .v.jp { font-family: var(--jp); font-style: normal; font-size: 16px; color: var(--gold-soft); }
+
+  /* 金箔 gem divider（home/pick と同一） */
+  .divider {
+    margin: 28px 0;
+    height: 9px; display: flex; align-items: center; gap: 12px; justify-content: center;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(198,164,74,0), rgba(198,164,74,0.5), rgba(198,164,74,0));
+  }
+  .divider .gem {
+    width: 7px; height: 7px; transform: rotate(45deg);
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft), var(--gold));
+    box-shadow: 0 0 6px rgba(198,164,74,0.6);
+  }
+</style>
+</head>
+<body>
+  <div class="screen">
+
+    <!-- 進捗 -->
+    <div class="progress" id="progress"></div>
+
+    <!-- ───────── STEP 0: 入口 ───────── -->
+    <section class="step active" data-step="0">
+      <div class="threshold">
+        <svg class="moon" width="64" height="64" viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="22" r="20" fill="none" stroke="rgba(216,189,114,0.22)" stroke-width="0.5"/>
+          <line x1="22" y1="2" x2="22" y2="5" stroke="rgba(216,189,114,0.55)" stroke-width="0.8"/>
+          <line x1="22" y1="39" x2="22" y2="42" stroke="rgba(216,189,114,0.55)" stroke-width="0.8"/>
+          <line x1="2" y1="22" x2="5" y2="22" stroke="rgba(216,189,114,0.55)" stroke-width="0.8"/>
+          <line x1="39" y1="22" x2="42" y2="22" stroke="rgba(216,189,114,0.55)" stroke-width="0.8"/>
+          <circle cx="22" cy="22" r="15" fill="#e8dca8" stroke="rgba(198,164,74,0.7)" stroke-width="0.7"/>
+          <circle cx="18" cy="19" r="1.2" fill="rgba(120,100,60,0.18)"/>
+          <circle cx="25" cy="24" r="1.8" fill="rgba(120,100,60,0.15)"/>
+          <path d="M 22 7 A 9 15 0 0 1 22 37 A 15 15 0 0 1 22 7 Z" fill="rgba(11,13,31,0.92)"/>
+        </svg>
+        <div class="wordmark">Pythiel</div>
+        <div class="tagline">夜空を編む</div>
+        <div class="arts">
+          <b>数秘術</b>・<b>タロット</b>・<b>ルーン</b>・<b>西洋占星術</b>。<br>
+          四つの古い知が<br>あなたという一点で交わる。
+        </div>
+        <div class="privacy-seal">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+          </svg>
+          すべて、この端末の中だけで
+        </div>
+      </div>
+      <button class="cta" onclick="go(1)">はじめる <span class="arrow">→</span></button>
+    </section>
+
+    <!-- ───────── STEP 1: 生まれた刻 ───────── -->
+    <section class="step" data-step="1">
+      <div class="eyebrow"><span class="ch">I</span><span class="label">生まれた刻</span></div>
+      <div class="headline">あなたが生まれた<span class="em">その時のこと</span>を。</div>
+
+      <div class="birth-block">
+        <div class="date-row">
+          <div class="date-field year">
+            <input id="b-year" type="tel" inputmode="numeric" maxlength="4" placeholder="1995">
+            <div class="unit">Year</div>
+          </div>
+          <div class="date-field">
+            <input id="b-month" type="tel" inputmode="numeric" maxlength="2" placeholder="04">
+            <div class="unit">Month</div>
+          </div>
+          <div class="date-field">
+            <input id="b-day" type="tel" inputmode="numeric" maxlength="2" placeholder="23">
+            <div class="unit">Day</div>
+          </div>
+        </div>
+
+        <div class="optional-field">
+          <div class="lbl">生まれた時刻 <span class="tag">任意</span></div>
+          <div class="hint" style="margin-bottom:8px">天宮図（ホロスコープ）の精度が上がります</div>
+          <input class="text-input" id="b-time" type="tel" inputmode="numeric" placeholder="08 : 30" maxlength="7">
+        </div>
+
+        <div class="optional-field">
+          <div class="lbl">お名前 <span class="tag">任意</span></div>
+          <div class="hint" style="margin-bottom:8px">ローマ字。数秘術の「表現数」に使います</div>
+          <input class="text-input" id="b-name" type="text" placeholder="TARO YAMADA" autocapitalize="characters">
+        </div>
+
+        <div class="privacy-note">
+          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          入力した情報は端末の中だけに保存され、どこへも送られません。
+        </div>
+      </div>
+
+      <button class="cta" id="birth-cta" onclick="go(2)" disabled>次へ <span class="arrow">→</span></button>
+      <button class="ghost-cta" onclick="go(0)">← もどる</button>
+    </section>
+
+    <!-- ───────── STEP 2: 鍵そろい ───────── -->
+    <section class="step" data-step="2">
+      <div class="eyebrow"><span class="ch">II</span><span class="label">鍵が、そろいました</span></div>
+      <div class="headline"><span class="em">あなただけの鑑定</span>がひらけます。</div>
+
+      <div class="keys-card" id="keys-card"></div>
+
+      <div class="divider"><span class="gem"></span></div>
+
+      <button class="cta" onclick="enter()">今日の問いへ <span class="arrow">→</span></button>
+      <button class="ghost-cta" onclick="go(1)">← 入力をなおす</button>
+    </section>
+
+  </div>
+
+<script>
+  var TOTAL = 3;
+  var state = { year:'', month:'', day:'', time:'', name:'' };
+
+  // ── 進捗ドット ──
+  var prog = document.getElementById('progress');
+  for (var i=0;i<TOTAL;i++){ var d=document.createElement('span'); d.className='dot'; prog.appendChild(d); }
+  function setProgress(n){
+    var dots = prog.querySelectorAll('.dot');
+    dots.forEach(function(d,i){ d.classList.toggle('on', i<=n); });
+  }
+
+  // ── birth 入力バリデーション ──
+  var by=document.getElementById('b-year'), bm=document.getElementById('b-month'), bd=document.getElementById('b-day');
+  var bt=document.getElementById('b-time'), bn=document.getElementById('b-name');
+  var birthCta=document.getElementById('birth-cta');
+  function validBirth(){
+    var y=+by.value, m=+bm.value, d=+bd.value;
+    if (!(by.value.length===4 && y>=1900 && y<=2025 && m>=1 && m<=12 && d>=1 && d<=31)) return false;
+    // 実在日チェック（2/31 等を弾く。Date は繰り上げるので roundtrip で照合）
+    var dt = new Date(y, m-1, d);
+    return dt.getFullYear()===y && dt.getMonth()===m-1 && dt.getDate()===d;
+  }
+  function refreshBirth(){
+    state.year=by.value; state.month=bm.value; state.day=bd.value;
+    state.time=bt.value; state.name=bn.value;
+    birthCta.disabled = !validBirth();
+  }
+  [by,bm,bd,bt,bn].forEach(function(el){ el.addEventListener('input', refreshBirth); });
+  // 年→月→日 オートフォーカス送り
+  by.addEventListener('input', function(){ if(by.value.length===4) bm.focus(); });
+  bm.addEventListener('input', function(){ if(bm.value.length===2) bd.focus(); });
+
+  // ── 鍵 recap 描画 ──
+  function pad(s){ return ('0'+s).slice(-2); }
+  function renderKeys(){
+    var rows = [];
+    var dateStr = state.year && state.month && state.day
+      ? state.year+'. '+pad(state.month)+'. '+pad(state.day) : '—';
+    rows.push(['生年月日', dateStr, true]);
+    if (state.time && state.time.replace(/[^0-9]/g,'').length>=3) rows.push(['時刻', state.time, false]);
+    if (state.name && state.name.trim()) rows.push(['名前', state.name.trim(), false]);
+    document.getElementById('keys-card').innerHTML = rows.map(function(r){
+      return '<div class="key-row"><span class="k">'+r[0]+'</span><span class="v'+(r[2]?' jp':'')+'">'+r[1]+'</span></div>';
+    }).join('');
+  }
+
+  // ── ステップ遷移 ──
+  var cur = 0;
+  function go(n){
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    var next = document.querySelector('.step[data-step="'+n+'"]');
+    next.classList.add('active');
+    cur = n; setProgress(n);
+    if (n===2) renderKeys();
+    window.scrollTo(0,0);
+  }
+  function enter(){
+    // 生年月日等を保存 → 今日の問い（テーマ選択）へ。
+    try { sessionStorage.setItem('pythiel.onboarding', JSON.stringify(state)); } catch(e){}
+    location.href = './theme.html';
+  }
+
+  setProgress(0);
+</script>
+</body>
+</html>

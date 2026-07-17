@@ -1,0 +1,24 @@
+node_modules/
+.expo/
+dist/
+web-build/
+ios/
+android/
+*.log
+
+# secrets / credentials (never commit)
+.secrets/
+credentials.json
+.env
+.env.*
+
+# generated build artifacts (rebuilt in CI)
+app/webview-payload.ts
+design/mockups/engine.bundle.js
+design/mockups/engine.bundle.js.map
+design/mockups/.webview-test.html
+scripts/.compat-debug-bundle.mjs
+scripts/.extract-webview-test.mjs
+
+# os
+.DS_Store

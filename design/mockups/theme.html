@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythiel — 今日の問い</title>
+<link href="../fonts/cormorant.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2233;
+    --navy-deep: #11161f;
+    --gold: #c6a44a;
+    --gold-soft: #d8bd72;
+    --cream: #f4e7c4;
+    --cream-mute: #a89b78;
+    --wine: #7f2a3b;
+    --line: #2c3344;
+
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+    --jp-sans: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--navy-deep); color: var(--cream); }
+  body {
+    width: 390px; margin: 0 auto;
+    min-height: 844px;
+    position: relative;
+    background-image: url('../references/pythiel-bg.png');
+    background-size: cover; background-position: center top;
+    background-color: var(--navy);
+    overflow-x: hidden;
+    font-family: var(--jp);
+  }
+  body::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 130px;
+    background: linear-gradient(180deg, rgba(17,22,31,0.88), rgba(17,22,31,0));
+    pointer-events: none; z-index: 1;
+  }
+  body::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(2px 2px at 22% 14%, rgba(244,231,196,0.85), transparent 55%),
+      radial-gradient(1.5px 1.5px at 78% 22%, rgba(216,189,114,0.75), transparent 50%),
+      radial-gradient(2.2px 2.2px at 35% 78%, rgba(244,231,196,0.7), transparent 55%),
+      radial-gradient(1.8px 1.8px at 88% 65%, rgba(216,189,114,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 12% 88%, rgba(244,231,196,0.55), transparent 50%),
+      radial-gradient(1.1px 1.1px at 50% 35%, rgba(198,164,74,0.65), transparent 50%),
+      radial-gradient(1.1px 1.1px at 62% 92%, rgba(216,189,114,0.6), transparent 50%),
+      radial-gradient(1.2px 1.2px at 8% 48%, rgba(216,189,114,0.55), transparent 50%);
+    opacity: 1;
+  }
+
+  .screen { position: relative; z-index: 2; padding: 0 30px 40px; display: flex; flex-direction: column; min-height: 844px; }
+
+  /* topbar（home/pick と同一） */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 22px 0 8px; }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand img { width: 26px; height: 26px; opacity: 0.95; }
+  .brand .wordmark { font-family: var(--serif); font-size: 21px; font-weight: 600; letter-spacing: 0.08em; color: var(--gold); }
+  .date { font-family: var(--serif); font-size: 13px; letter-spacing: 0.18em; color: var(--cream-mute); }
+
+  /* 章 eyebrow */
+  .eyebrow { display: flex; align-items: center; gap: 12px; margin-top: 26px; }
+  .eyebrow .ch {
+    font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--gold-soft);
+    border-right: 1px solid rgba(198,164,74,0.4); padding-right: 12px; line-height: 1;
+  }
+  .eyebrow .label {
+    font-family: var(--jp-sans); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.42em; text-transform: uppercase; color: var(--gold);
+  }
+  .eyebrow::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(198,164,74,0.5), rgba(198,164,74,0)); }
+
+  .headline {
+    font-family: var(--jp); font-size: 27px; font-weight: 500; line-height: 1.45;
+    color: var(--cream); margin-top: 20px; letter-spacing: 0.01em;
+  }
+  .headline .em { color: var(--gold-soft); }
+  .subline { font-family: var(--jp); font-size: 14px; line-height: 1.9; color: var(--cream-mute); margin-top: 14px; }
+
+  /* テーマカード（onboarding の goal カードと同一言語） */
+  .theme-list { margin-top: 28px; display: flex; flex-direction: column; gap: 13px; }
+  .theme {
+    position: relative; display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(180deg, rgba(27,34,51,0.66), rgba(17,22,31,0.66));
+    border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px;
+    cursor: pointer; backdrop-filter: blur(2px);
+    transition: border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, opacity 0.5s ease;
+  }
+  .theme:hover, .theme.sel {
+    border-color: rgba(198,164,74,0.6);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.35), 0 0 0 1px rgba(198,164,74,0.3);
+    transform: translateY(-2px);
+  }
+  .theme .glyph {
+    width: 44px; height: 44px; flex: none;
+    border: 1px solid rgba(198,164,74,0.45); border-radius: 50%;
+    display: grid; place-items: center;
+    background: radial-gradient(ellipse 60% 60% at center, rgba(198,164,74,0.14), transparent 70%);
+  }
+  .theme .glyph svg { width: 23px; height: 23px; stroke: var(--gold-soft); fill: none; stroke-width: 1.3; }
+  .theme .txt .t { font-family: var(--jp); font-size: 16.5px; color: var(--cream); font-weight: 500; }
+  .theme .txt .d { font-family: var(--jp-sans); font-size: 11.5px; color: var(--cream-mute); margin-top: 3px; }
+  .theme .pick-mark { margin-left: auto; font-family: var(--serif); font-size: 20px; color: var(--gold); opacity: 0; transition: opacity 0.3s ease; }
+  .theme.sel .pick-mark { opacity: 1; }
+
+  .footnote {
+    margin-top: auto; padding-top: 26px; text-align: center;
+    font-family: var(--jp-sans); font-size: 11px; letter-spacing: 0.05em; color: var(--cream-mute);
+  }
+  /* 選択後の昇華（ゴールドの霧で pick へ渡す。pick と同言語） */
+  .veil-fill {
+    position: fixed; inset: 0; z-index: 300;
+    background: radial-gradient(circle at 50% 40%, #fff7e6 0%, #f6e4b0 50%, #e9cf88 100%);
+    opacity: 0; pointer-events: none; transition: opacity 0.7s ease-in;
+  }
+  .veil-fill.show { opacity: 1; }
+</style>
+</head>
+<body>
+  <div class="screen">
+    <div class="topbar">
+      <div class="brand">
+        <img src="../references/pythiel-icon.png" alt="Pythiel">
+        <span class="wordmark">Pythiel</span>
+      </div>
+      <div class="date" id="date">2026 · 6 · 24</div>
+    </div>
+
+    <div class="eyebrow"><span class="ch">I</span><span class="label">今日のはじまり</span></div>
+    <div class="headline">今日は、なにを<br><span class="em">占いましょう</span>。</div>
+    <div class="subline">心にいちばん近いものを、ひとつ。</div>
+
+    <div class="theme-list" id="theme-list"></div>
+
+    <div class="footnote">選ぶと、今日の一枚を引く儀へ。</div>
+  </div>
+
+  <div class="veil-fill" id="veil-fill"></div>
+
+<script>
+  var THEMES = [
+    { id:'love', t:'恋愛・人との縁', d:'心が触れあう関係のこと',
+      svg:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>' },
+    { id:'work', t:'仕事・使命', d:'進む道と、果たす役割',
+      svg:'<path d="M12 3l2.2 6.6H21l-5.4 4 2 6.4-5.6-4-5.6 4 2-6.4-5.4-4h6.8z"/>' },
+    { id:'self', t:'自分・内面', d:'まだ言葉にできていない本心',
+      svg:'<path d="M20 13a8 8 0 1 1-7-9 6 6 0 0 0 7 9z"/>' },
+    { id:'future', t:'これから・未来', d:'これから訪れる流れ',
+      svg:'<path d="M3 18 L13 8"/><path d="M13 4v5h-5"/><circle cx="6" cy="15" r="1.2"/><circle cx="18" cy="6" r="1.6"/>' }
+  ];
+  var list = document.getElementById('theme-list');
+  var locked = false;
+  THEMES.forEach(function(g){
+    var el = document.createElement('div');
+    el.className = 'theme'; el.dataset.id = g.id;
+    el.innerHTML =
+      '<div class="glyph"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">'+g.svg+'</svg></div>'+
+      '<div class="txt"><div class="t">'+g.t+'</div><div class="d">'+g.d+'</div></div>'+
+      '<div class="pick-mark">✦</div>';
+    el.onclick = function(){
+      if (locked) return; locked = true;
+      // 選択を保存
+      try { sessionStorage.setItem('pythiel.theme', g.id); } catch(e){}
+      // 他をフェード、選択を強調
+      list.querySelectorAll('.theme').forEach(function(x){
+        if (x !== el) { x.style.opacity = '0'; }
+      });
+      el.classList.add('sel');
+      // ゴールドの霧で pick へ（pick→home と同じ昇華言語）
+      var fill = document.getElementById('veil-fill');
+      setTimeout(function(){ fill.classList.add('show'); }, 350);
+      setTimeout(function(){ location.href = './pick.html'; }, 1050);
+    };
+    list.appendChild(el);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "build": {
+    "production": {
+      "autoIncrement": true,
+      "credentialsSource": "local",
+      "ios": {
+        "buildConfiguration": "Release",
+        "resourceClass": "m-medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "REDACTED",
+        "appleId": "REDACTED",
+        "appleTeamId": "YXFS993Z4K",
+        "ascApiKeyPath": "./.secrets/AuthKey_REDACTED.p8",
+        "ascApiKeyId": "REDACTED",
+        "ascApiKeyIssuerId": "REDACTED"
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+name: iOS Build (EAS local on macOS)
+
+# Build a production iOS .ipa on a GitHub-hosted macOS runner using
+# `eas build --local`. Public repo = unlimited free macOS minutes.
+#
+# Required GitHub Secrets:
+#   EXPO_TOKEN                   — Expo access token
+#   ASC_API_KEY_P8_B64           — App Store Connect API .p8, base64
+#   ASC_API_KEY_ID               — ASC key id
+#   ASC_API_KEY_ISSUER_ID        — ASC issuer id
+#   IOS_DIST_P12_B64             — Distribution .p12, base64
+#   IOS_DIST_P12_PASSWORD        — .p12 password
+#   IOS_PROVISIONING_PROFILE_B64 — Pythiel App Store .mobileprovision, base64
+#   EAS_PROJECT_ID               — EAS project id (injected at build time, OPSEC)
+#   EXPO_OWNER                   — Expo account owner (injected at build time, OPSEC)
+#   APPLE_ID                     — Apple ID email (submit only)
+#   ASC_APP_ID                   — ASC numeric app id (submit only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto_submit:
+        description: 'Upload to TestFlight after build (eas submit)'
+        type: boolean
+        required: false
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'lib/**'
+      - 'design/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'app.json'
+      - 'eas.json'
+      - '.github/workflows/ios-build.yml'
+
+jobs:
+  build-ios:
+    name: Build iOS production .ipa
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select latest Xcode (iOS 26 SDK required by ASC uploads)
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XCODE" ]; then XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1); fi
+          echo "Selected: $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup EAS / Expo
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build engine bundle + WebView payload (generated, not committed)
+        run: |
+          npm run build:engine
+          npm run build:webview
+          ls -la app/webview-payload.ts
+
+      - name: Restore iOS credentials
+        env:
+          DIST_P12_B64: ${{ secrets.IOS_DIST_P12_B64 }}
+          DIST_P12_PASSWORD: ${{ secrets.IOS_DIST_P12_PASSWORD }}
+          PROFILE_B64: ${{ secrets.IOS_PROVISIONING_PROFILE_B64 }}
+          ASC_KEY_B64: ${{ secrets.ASC_API_KEY_P8_B64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+        run: |
+          mkdir -p .secrets
+          echo "$DIST_P12_B64" | base64 -d > .secrets/ios_distribution.p12
+          echo "$PROFILE_B64" | base64 -d > .secrets/Pythiel_AppStore.mobileprovision
+          echo "$ASC_KEY_B64" | base64 -d > .secrets/AuthKey_${ASC_KEY_ID}.p8
+          cat > credentials.json <<EOF
+          {
+            "ios": {
+              "provisioningProfilePath": ".secrets/Pythiel_AppStore.mobileprovision",
+              "distributionCertificate": {
+                "path": ".secrets/ios_distribution.p12",
+                "password": "${DIST_P12_PASSWORD}"
+              }
+            }
+          }
+          EOF
+
+      - name: Inject EAS project link (kept out of the public repo for OPSEC)
+        env:
+          EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}
+          EXPO_OWNER: ${{ secrets.EXPO_OWNER }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync("app.json", "utf8"));
+            j.expo = j.expo || {};
+            j.expo.owner = process.env.EXPO_OWNER;
+            j.expo.extra = j.expo.extra || {};
+            j.expo.extra.eas = j.expo.extra.eas || {};
+            j.expo.extra.eas.projectId = process.env.EAS_PROJECT_ID;
+            fs.writeFileSync("app.json", JSON.stringify(j, null, 2));
+            console.log("Injected owner + projectId:", j.expo.owner ? "SET" : "MISSING", j.expo.extra.eas.projectId ? "SET" : "MISSING");
+          '
+
+      - name: EAS build (local)
+        run: |
+          eas build \
+            --platform ios \
+            --profile production \
+            --local \
+            --non-interactive \
+            --output build.ipa
+
+      - name: Upload .ipa artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pythiel-ios-ipa
+          path: build.ipa
+          retention-days: 7
+
+      - name: Inject submit credentials into eas.json (OPSEC — redacted in repo)
+        if: ${{ inputs.auto_submit == true }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_ISSUER: ${{ secrets.ASC_API_KEY_ISSUER_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          ASC_APP_ID: ${{ secrets.ASC_APP_ID }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync("eas.json", "utf8"));
+            const ios = ((j.submit||{}).production||{}).ios;
+            if (!ios) { console.error("submit.production.ios missing"); process.exit(1); }
+            ios.ascAppId = process.env.ASC_APP_ID;
+            ios.appleId = process.env.APPLE_ID;
+            ios.ascApiKeyId = process.env.ASC_KEY_ID;
+            ios.ascApiKeyIssuerId = process.env.ASC_ISSUER;
+            ios.ascApiKeyPath = "./.secrets/AuthKey_" + process.env.ASC_KEY_ID + ".p8";
+            fs.writeFileSync("eas.json", JSON.stringify(j, null, 2));
+            console.log("Injected submit creds SET");
+          '
+
+      - name: Submit to App Store Connect (TestFlight)
+        if: ${{ inputs.auto_submit == true }}
+        run: |
+          eas submit \
+            --platform ios \
+            --path build.ipa \
+            --non-interactive \
+            --profile production
