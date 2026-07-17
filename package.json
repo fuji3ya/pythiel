@@ -3,6 +3,9 @@
   "main": "expo-router/entry",
   "version": "0.0.1",
   "private": true,
+  "overrides": {
+    "react-native-worklets": "0.8.3"
+  },
   "scripts": {
     "start": "expo start",
     "ios": "expo start --ios",
