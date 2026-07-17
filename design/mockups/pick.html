@@ -513,12 +513,16 @@
       setTimeout(function(){ fill.classList.add('show'); }, 1650);
 
       // ⑥ 光が満ちきる頃に即 home へ（待ちを作らない。home 側がゴールド光から明ける）
+      // 遷移先 URL は固定文字列にすること — 連結すると WebView ルーターのハッシュ書き換えが
+      // '#home' + idx を作って未知ページ扱い→TOP フォールバックする（実機バグ 2026-07-18）。
+      // 引いたカードは storage で渡す。
       setTimeout(function(){
         try {
           sessionStorage.setItem('pythiel.pickedIdx', idx);
           sessionStorage.setItem('pythiel.userId', 'pick-' + Date.now() + '-' + idx);
+          sessionStorage.setItem('pythiel.fromPick', '1');
         } catch(e) {}
-        location.href = './home.html?picked=' + idx;
+        location.href = './home.html';
       }, 2500);
     });
   })();

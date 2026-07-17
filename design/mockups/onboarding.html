@@ -458,6 +458,8 @@
   }
   function enter(){
     // 生年月日等を保存 → 今日の問い（テーマ選択）へ。
+    // 誕生日は永続データ — localStorage に保存（sessionStorage は WebView の再起動で消える）
+    try { localStorage.setItem('pythiel.onboarding', JSON.stringify(state)); } catch(e){}
     try { sessionStorage.setItem('pythiel.onboarding', JSON.stringify(state)); } catch(e){}
     location.href = './theme.html';
   }

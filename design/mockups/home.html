@@ -537,6 +537,13 @@
   (function(){
     var hasPick = false;
     try { hasPick = new URLSearchParams(location.search).has('picked'); } catch(e) {}
+    // WebView ルーター経由では query が付かないので storage フラグでも受ける（読んだら消す）
+    try {
+      if (!hasPick && sessionStorage.getItem('pythiel.fromPick') === '1') {
+        hasPick = true;
+        sessionStorage.removeItem('pythiel.fromPick');
+      }
+    } catch(e) {}
     if (!hasPick) return;
     var screen = document.querySelector('.screen');
     if (screen) screen.classList.add('intro');
@@ -615,7 +622,9 @@
     // pick.html が ('pythiel.userId') に「引いたカードの種」を保存する。
     function readOnboarding() {
       try {
-        var raw = sessionStorage.getItem('pythiel.onboarding');
+        var raw = null;
+        try { raw = localStorage.getItem('pythiel.onboarding'); } catch (e2) {}
+        if (!raw) raw = sessionStorage.getItem('pythiel.onboarding');
         if (!raw) return null;
         var s = JSON.parse(raw);
         if (!s.year || !s.month || !s.day) return null;
