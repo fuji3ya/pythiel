@@ -52,7 +52,9 @@
     opacity: 1;
   }
 
-  .screen { position: relative; z-index: 2; padding: 0 26px; min-height: 844px; }
+  /* overflow hidden: fan 展開の transform が狭い機種 (375px) で画面幅を超えて
+     横スライドを作るのを、この画面内で clip する（pick はスクロール不要の全画面演出） */
+  .screen { position: relative; z-index: 2; padding: 0 26px; min-height: 844px; overflow: hidden; }
 
   /* ヘッダー (home と同じ) */
   .topbar {
