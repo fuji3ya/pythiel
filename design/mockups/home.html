@@ -615,7 +615,20 @@
       }
       path.setAttribute('d', dPath);
     }
-    setMoonPhase('2026-06-24'); // 今日
+    // 実行日（端末ローカル）— 全鑑定・月相・表示はこの実日付を使う。ダミー日付禁止
+    var TODAY = (function(){
+      var d = new Date();
+      var p = function(n){ return ('0' + n).slice(-2); };
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+    })();
+    (function(){
+      var el = document.getElementById('header-date');
+      if (el) {
+        var parts = TODAY.split('-');
+        el.textContent = parts[0] + ' · ' + Number(parts[1]) + ' · ' + Number(parts[2]);
+      }
+    })();
+    setMoonPhase(TODAY);
 
     // ── onboarding の入力を読み込んで結果に紐づける ──
     // onboarding.html が sessionStorage('pythiel.onboarding') に保存、
@@ -641,19 +654,23 @@
       } catch (e) { return null; }
     }
     var ob = readOnboarding();
-    var pickedUserId = 'demo-user';
-    try { pickedUserId = sessionStorage.getItem('pythiel.userId') || pickedUserId; } catch (e) {}
+    // 本番仕様: プロフィール未登録なら鑑定は出さず、登録へ戻す（デモ値 fallback 禁止 —
+    // 1992-03-15 デモ誕生日が実ユーザーに「うお座の鑑定」を見せた実機バグ 2026-07-18）
+    if (!ob) { location.href = './onboarding.html'; return; }
 
-    // onboarding があれば実データ、無ければデモ値（直接 home を開いた時用）
-    // 今日の相談テーマ（theme.html が保存）。無ければ self をデモ既定に。
+    var pickedUserId = null;
+    try { pickedUserId = sessionStorage.getItem('pythiel.userId'); } catch (e) {}
+    // カードを引いていなければテーマ選択からやり直し（鑑定は引いた一枚が前提）
+    if (!pickedUserId) { location.href = './theme.html'; return; }
+
     var theme = 'self';
     try { theme = sessionStorage.getItem('pythiel.theme') || theme; } catch (e) {}
 
     var profile = {
       userId: pickedUserId,                       // 引いたカード → タロットの種
-      date: '2026-06-24',
-      birth: ob ? ob.birth : { date: '1992-03-15', time: '14:30' },
-      name: ob ? ob.name : 'Taro Yamada',
+      date: TODAY,
+      birth: ob.birth,
+      name: ob.name,
       theme: theme,
     };
 

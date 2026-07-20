@@ -25,3 +25,4 @@ scripts/.extract-webview-test.mjs
 
 # local artifact downloads
 .build-artifact/
+scripts/.sun-debug-bundle.mjs

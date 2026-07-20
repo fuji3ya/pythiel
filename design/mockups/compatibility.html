@@ -227,7 +227,10 @@
         <img src="../references/pythiel-icon.png" alt="Pythiel">
         <span class="wordmark">Pythiel</span>
       </div>
-      <div class="date" id="date">2026 · 6 · 24</div>
+      <div class="date" id="date"></div>
+      <script>
+        (function(){ var d=new Date(); document.getElementById('date').textContent = d.getFullYear()+' · '+(d.getMonth()+1)+' · '+d.getDate(); })();
+      </script>
     </div>
 
     <!-- ───────── STEP 0: 相手の入力 ───────── -->
@@ -324,19 +327,21 @@
 <script>
   // ── 自分（本人）の生年月日: onboarding の保存を復元。無ければデフォルト ──
   function readSelfBirth() {
-    var fallback = { date: '1993-11-08', time: '03:20' };
+    // 未登録なら null（呼び出し側が登録へ誘導）。デモ誕生日 fallback は本番仕様で禁止
     try {
-      var raw = sessionStorage.getItem('pythiel.onboarding');
-      if (!raw) return fallback;
+      var raw = null;
+      try { raw = localStorage.getItem('pythiel.onboarding'); } catch (e2) {}
+      if (!raw) raw = sessionStorage.getItem('pythiel.onboarding');
+      if (!raw) return null;
       var s = JSON.parse(raw);
-      if (!s.year || !s.month || !s.day) return fallback;
+      if (!s.year || !s.month || !s.day) return null;
       var pad = function(x){ return ('0' + String(x).replace(/\D/g, '')).slice(-2); };
       var date = s.year + '-' + pad(s.month) + '-' + pad(s.day);
       var time;
       var td = (s.time || '').replace(/\D/g, '');
       if (td.length >= 3) { td = ('000' + td).slice(-4); time = td.slice(0,2) + ':' + td.slice(2,4); }
       return { date: date, time: time, name: (s.name || '').trim() || undefined };
-    } catch (e) { return fallback; }
+    } catch (e) { return null; }
   }
 
   // ── 相手の入力バリデーション（onboarding.validBirth と同一方式） ──
@@ -401,11 +406,12 @@
     if (revealCta.disabled) return;
 
     var selfBirth = readSelfBirth();
+    if (!selfBirth) { location.href = './onboarding.html'; return; }
     var otherName = bn.value.trim();
     var input = {
       a: { birthDate: selfBirth.date, birthTime: selfBirth.time, name: selfBirth.name },
       b: { birthDate: by.value + '-' + pad(bm.value) + '-' + pad(bd.value), name: otherName || undefined },
-      date: '2026-06-24',
+      date: (function(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); })(),
     };
 
     var veil = document.getElementById('veil-fill');
@@ -413,18 +419,20 @@
 
     setTimeout(function () {
       var E = window.PythielEngine;
-      var result;
+      var result = null;
       try {
         if (E && typeof E.computeCompatibility === 'function') {
           var provider = new E.MoshierAstrologyProvider();
           result = E.computeCompatibility(input, provider);
-        } else {
-          console.warn('PythielEngine.computeCompatibility not available yet — using fallback text');
-          result = demoResult(input);
         }
       } catch (e) {
         console.error('computeCompatibility failed', e);
-        result = demoResult(input);
+      }
+      // 計算できないときはダミー鑑定を見せず、正直に伝えて戻す（本番仕様 2026-07-18）
+      if (!result) {
+        veil.classList.remove('show');
+        alert('鑑定を計算できませんでした。入力を確認してもう一度お試しください。');
+        return;
       }
 
       var bandLabelEl = document.getElementById('band-label');

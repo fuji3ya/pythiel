@@ -373,8 +373,8 @@
 
     <!-- タイトル -->
     <div class="pick-title">
-      <div class="lead">手の動きは、迷わない。</div>
-      <div class="sub">12枚の中から、ふっと触れたくなった一枚を。</div>
+      <div class="lead">導かれるままに</div>
+      <div class="sub">12枚から 一枚だけ</div>
     </div>
 
     <!-- 扇形カード群 -->
@@ -550,7 +550,13 @@
       }
       path.setAttribute('d', dPath);
     }
-    setMoonPhase('2026-06-24');
+    (function(){
+      var d = new Date();
+      var iso = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+      var el = document.getElementById('header-date');
+      if (el) el.textContent = d.getFullYear() + ' · ' + (d.getMonth()+1) + ' · ' + d.getDate();
+      setMoonPhase(iso);
+    })();
   })();
 </script>
 </body>

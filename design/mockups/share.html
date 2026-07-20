@@ -143,13 +143,21 @@
   (function(){
     var E = window.PythielEngine;
     if (!E) return;
-    // sessionStorage の persona を復元（無ければデモ）
-    var ob = {}; try { ob = JSON.parse(sessionStorage.getItem('pythiel.onboarding')||'{}'); } catch(e){}
+    // 保存済みプロフィールを復元（localStorage 優先）。未登録なら登録へ戻す — デモ値 fallback 禁止
+    var ob = {};
+    try {
+      var raw = null;
+      try { raw = localStorage.getItem('pythiel.onboarding'); } catch(e2) {}
+      if (!raw) raw = sessionStorage.getItem('pythiel.onboarding');
+      ob = JSON.parse(raw || '{}');
+    } catch(e){}
+    if (!(ob.year && ob.month && ob.day)) { location.href = './onboarding.html'; return; }
     var theme = 'self'; try { theme = sessionStorage.getItem('pythiel.theme')||'self'; } catch(e){}
-    var uid = 'demo'; try { uid = sessionStorage.getItem('pythiel.userId')||'demo'; } catch(e){}
+    var uid = null; try { uid = sessionStorage.getItem('pythiel.userId'); } catch(e){}
+    if (!uid) { location.href = './theme.html'; return; }
     function pad(x){ return ('0'+String(x).replace(/\D/g,'')).slice(-2); }
-    var birth = (ob.year && ob.month && ob.day) ? { date: ob.year+'-'+pad(ob.month)+'-'+pad(ob.day), time: (ob.time && ob.time.replace(/\D/g,'').length>=3)?(function(){var t=('000'+ob.time.replace(/\D/g,'')).slice(-4); return t.slice(0,2)+':'+t.slice(2);})():undefined } : { date:'1993-11-08', time:'03:20' };
-    var date = '2026-06-24';
+    var birth = { date: ob.year+'-'+pad(ob.month)+'-'+pad(ob.day), time: (ob.time && ob.time.replace(/\D/g,'').length>=3)?(function(){var t=('000'+ob.time.replace(/\D/g,'')).slice(-4); return t.slice(0,2)+':'+t.slice(2);})():undefined };
+    var date = (function(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); })();
 
     var astro = new E.MoshierAstrologyProvider();
     var input = E.assembleDailyReading({ userId: uid, date: date, birth: birth, name: ob.name||undefined, theme: theme, astrology: astro });
@@ -167,10 +175,16 @@
     document.getElementById('sc-hit').textContent = hit;
   })();
 
-  document.getElementById('save-btn').addEventListener('click', function(){
-    // 本番は html2canvas 等でカードを画像化して共有/保存。モックは案内のみ。
-    alert('このカードを画像として保存・シェアします（実装時は html2canvas で share-card を書き出し）。');
-  });
+  // 画像書き出しは未実装のため保存ボタンは出さない（未完成機能を見せない — 2026-07-18）。
+  // スクリーンショット保存の案内に差し替える。
+  (function(){
+    var btn = document.getElementById('save-btn');
+    if (!btn) return;
+    var note = document.createElement('div');
+    note.style.cssText = 'text-align:center;font-size:12px;letter-spacing:0.12em;color:rgba(244,231,196,0.55);padding:10px 0;';
+    note.textContent = 'スクリーンショットで保存できます';
+    btn.parentNode.replaceChild(note, btn);
+  })();
 </script>
 </body>
 </html>

@@ -175,6 +175,13 @@
     };
     list.appendChild(el);
   });
+
+  // 実行日表示（ダミー日付禁止）
+  (function(){
+    var d = new Date();
+    var el = document.getElementById('date');
+    if (el) el.textContent = d.getFullYear() + ' · ' + (d.getMonth()+1) + ' · ' + d.getDate();
+  })();
 </script>
 </body>
 </html>
