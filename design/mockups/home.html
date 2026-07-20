@@ -127,6 +127,8 @@
 
   /* ── 今日のカード（主役・signature） ──────── */
   .card-stage { text-align: center; margin-top: 18px; }
+  /* 逆位置はカードも逆さに（鑑定表示の作法） */
+  .card-wrap img.reversed { transform: rotate(180deg); }
   .card-wrap {
     position: relative; display: inline-block; margin-top: 18px;
     /* 二層影: 上の浮遊感 + 下の深い接地 */
@@ -695,12 +697,17 @@
     new E.SynthesisEngine().compose(input).then(function(reading) {
       console.log('=== Reading ===', JSON.stringify(reading, null, 2));
 
-      // 日付ヘッダー
-      document.querySelector('.date').textContent = profile.date.replace(/-/g, ' · ');
+      // 日付ヘッダー（0 埋めなし表示: 2026 · 7 · 20）
+      var dp = profile.date.split('-');
+      document.querySelector('.date').textContent = dp[0] + ' · ' + Number(dp[1]) + ' · ' + Number(dp[2]);
 
       // タロットカード名（英語名のみ。jp span は engine 側未実装のため省略）
       document.getElementById('card-name').textContent = input.tarot.card.name;
       document.getElementById('card-pos').textContent = input.tarot.reversed ? '逆位置' : '正位置';
+      if (input.tarot.reversed) {
+        var ci = document.getElementById('card-image');
+        if (ci) ci.classList.add('reversed');
+      }
       // V4: カード ID 別画像。assets/cards/<id>.jpg にファイルがあれば自動切替、無ければ裏面のまま
       var cardImg = document.getElementById('card-image');
       var cardId = input.tarot.card.id;

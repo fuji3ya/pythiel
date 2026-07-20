@@ -166,6 +166,7 @@
     document.getElementById('sc-date').textContent = date.replace(/-/g,' · ').replace(' · 0',' · ');
     document.getElementById('sc-name').textContent = input.tarot.card.name;
     document.getElementById('sc-pos').textContent = input.tarot.reversed ? '逆位置' : '正位置';
+    if (input.tarot.reversed) document.getElementById('sc-card-img').style.transform = 'rotate(180deg)';
     // カード画像（ID 別があれば）
     var cardImg = document.getElementById('sc-card-img');
     var idealSrc = '../assets/cards/' + input.tarot.card.id + '.jpg';
